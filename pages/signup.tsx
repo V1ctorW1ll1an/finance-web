@@ -1,3 +1,5 @@
+import { GetServerSideProps } from 'next'
+import { parseCookies } from 'nookies'
 import { MobilePayImage } from '../components/MobilePayImage'
 import { SignupForm } from '../components/SignUpForm'
 
@@ -12,4 +14,21 @@ export default function Signup() {
       </div>
     </main>
   )
+}
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const cookies = parseCookies(context)
+
+  if (cookies.token) {
+    return {
+      redirect: {
+        destination: '/dashboard',
+        permanent: false,
+      },
+    }
+  }
+
+  return {
+    props: {},
+  }
 }

@@ -1,32 +1,46 @@
-import { WarningCircle, CheckCircle, Envelope, Lock, User, X, Circle } from 'phosphor-react'
+import { yupResolver } from '@hookform/resolvers/yup'
+import clsx from 'clsx'
+import { CheckCircle, Envelope, Lock, WarningCircle, X } from 'phosphor-react'
+import { SubmitHandler, useForm } from 'react-hook-form'
 import { Button } from './Button'
 import { Text } from './Text'
 import { TextInput } from './TextInput'
-import { SubmitHandler, useForm } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
 import * as Yup from 'yup'
-import clsx from 'clsx'
-import { useMutation } from '@tanstack/react-query'
 import { useAxios } from '../hooks/useAxios'
+import { ResponseType } from '../common/types/ResponseType'
+import { useMutation } from '@tanstack/react-query'
 import * as Toast from '@radix-ui/react-toast'
 import { AxiosError } from 'axios'
-import Router from 'next/router'
-import { ResponseType } from '../common/types/ResponseType'
+import { useRouter } from 'next/router'
+import { setCookie } from 'nookies'
+
+type ResponseUserAuth = {
+  data: {
+    message: string
+    user: User
+  }
+}
+
+type User = {
+  id: string
+  name: string
+  email: string
+  token: string
+}
 
 type FormData = {
-  name: string
   email: string
   password: string
 }
 
 const validateSchema = Yup.object({
-  name: Yup.string().required('Campo obrigatório'),
   email: Yup.string().email('Email invalido').required('Campo obrigatório'),
   password: Yup.string().required('Campo obrigatório'),
 }).required()
 
-export function SignupForm() {
+export function LoginForm() {
   const { api } = useAxios()
+  const router = useRouter()
   const {
     register,
     handleSubmit,
@@ -36,24 +50,30 @@ export function SignupForm() {
     resolver: yupResolver(validateSchema),
   })
 
-  const postUser = async (newUser: FormData) => await api.post<ResponseType>('/user', newUser)
-  const redirectToLoginAfterThreeSeconds = () => setTimeout(() => Router.push('/login'), 3000)
-
-  const { data, error, isLoading, mutateAsync, isError, isSuccess } = useMutation({
-    mutationFn: postUser,
-    onSuccess: redirectToLoginAfterThreeSeconds,
-  })
-
+  const authUser = async (userToAuth: FormData) =>
+    await api.post<ResponseUserAuth>('/auth', userToAuth)
   const onSubmit: SubmitHandler<FormData> = async (formData) => {
     try {
-      await mutateAsync(formData)
+      return await mutateAsync(formData)
     } catch (error) {
       console.log(error)
     }
   }
 
+  const { data, error, isLoading, mutateAsync, isError, isSuccess } = useMutation({
+    mutationFn: authUser,
+    onSuccess: (resp) => {
+      setCookie(null, 'token', resp.data.data.user.token ?? '', {
+        maxAge: 30 * 24 * 60 * 60, // 30 days
+        path: '/',
+      })
+
+      router.push('/dashboard')
+    },
+  })
+
   return (
-    <div className="flex flex-col gap-8 w-full">
+    <div className="flex flex-col gap-8 w-full pl-5">
       {isError && error instanceof AxiosError ? (
         <Toast.Provider>
           <Toast.Root
@@ -78,29 +98,7 @@ export function SignupForm() {
         ''
       )}
 
-      {isSuccess && data ? (
-        <Toast.Provider>
-          <Toast.Root
-            className={clsx(
-              'bg-green-700 fixed top-3 right-2 shadow-lg p-3 min-w-[300px] rounded-xl flex justify-between text-gray-50'
-            )}
-          >
-            <Toast.Title>
-              <CheckCircle size={24} weight="fill" />
-            </Toast.Title>
-            <Toast.Description className="px-3">{data?.data?.data?.message}</Toast.Description>
-            <Toast.Action altText="Close toast" />
-            <Toast.Close>
-              <X />
-            </Toast.Close>
-          </Toast.Root>
-          <Toast.Viewport />
-        </Toast.Provider>
-      ) : (
-        ''
-      )}
-
-      <h1 className="text-5xl text-center">Cadastro</h1>
+      <h1 className="text-5xl text-center">Login</h1>
 
       <form
         action="/"
@@ -109,28 +107,6 @@ export function SignupForm() {
         className={clsx('flex flex-col justify-center items-center w-full gap-7')}
         noValidate
       >
-        <label htmlFor="name" className={clsx('flex flex-col gap-2 w-full')}>
-          <Text className={clsx('font-semibold', errors?.name?.message ? 'animate-bounce' : '')}>
-            Nome completo
-          </Text>
-          <TextInput.Root>
-            <TextInput.Icon>
-              <User />
-            </TextInput.Icon>
-            <TextInput.Input
-              register={register}
-              name="name"
-              type="text"
-              id="name"
-              placeholder="Digite seu nome"
-            />
-          </TextInput.Root>
-          {errors?.name?.message && (
-            <Text className={clsx('text-red-700')} size="sm">
-              {errors?.name?.message}
-            </Text>
-          )}
-        </label>
         <label htmlFor="email" className={clsx('flex flex-col gap-2 w-full')}>
           <Text className={clsx('font-semibold', errors?.email?.message ? 'animate-bounce' : '')}>
             Email
@@ -185,7 +161,7 @@ export function SignupForm() {
           type="submit"
           disabled={isLoading}
         >
-          {isLoading ? 'Aguarde...' : 'Cadastrar'}
+          {isLoading ? 'Aguarde...' : 'Login'}
         </Button>
       </form>
     </div>
