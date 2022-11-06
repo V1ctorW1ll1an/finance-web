@@ -1,13 +1,12 @@
-import { yupResolver } from '@hookform/resolvers/yup'
+import { zodResolver } from '@hookform/resolvers/zod'
 import clsx from 'clsx'
-import { CheckCircle, Envelope, Lock, WarningCircle, X } from 'phosphor-react'
+import { Envelope, Lock, WarningCircle, X } from 'phosphor-react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { Button } from './Button'
 import { Text } from './Text'
 import { TextInput } from './TextInput'
-import * as Yup from 'yup'
+import * as z from 'zod'
 import { useAxios } from '../hooks/useAxios'
-import { ResponseType } from '../common/types/ResponseType'
 import { useMutation } from '@tanstack/react-query'
 import * as Toast from '@radix-ui/react-toast'
 import { AxiosError } from 'axios'
@@ -33,10 +32,10 @@ type FormData = {
   password: string
 }
 
-const validateSchema = Yup.object({
-  email: Yup.string().email('Email invalido').required('Campo obrigatório'),
-  password: Yup.string().required('Campo obrigatório'),
-}).required()
+const validateSchema = z.object({
+  email: z.string().min(1, { message: 'Campo obrigatório' }),
+  password: z.string().min(1, { message: 'Campo obrigatório' }),
+})
 
 export function LoginForm() {
   const { api } = useAxios()
@@ -47,7 +46,7 @@ export function LoginForm() {
     formState: { errors },
   } = useForm<FormData>({
     mode: 'onChange',
-    resolver: yupResolver(validateSchema),
+    resolver: zodResolver(validateSchema),
   })
 
   const authUser = async (userToAuth: FormData) =>
@@ -60,10 +59,14 @@ export function LoginForm() {
     }
   }
 
-  const { data, error, isLoading, mutateAsync, isError, isSuccess } = useMutation({
+  const { data, error, isLoading, mutateAsync, isError } = useMutation({
     mutationFn: authUser,
     onSuccess: (resp) => {
       setCookie(null, 'token', resp.data.data.user.token ?? '', {
+        maxAge: 30 * 24 * 60 * 60, // 30 days
+        path: '/',
+      })
+      setCookie(null, 'user', JSON.stringify(resp.data.data.user), {
         maxAge: 30 * 24 * 60 * 60, // 30 days
         path: '/',
       })
