@@ -3,7 +3,7 @@ import { Logo } from './Logo'
 import { Button } from './Button'
 import Link from 'next/link'
 
-export function Header() {
+export function HomeHeader() {
   return (
     <div
       className={clsx(`h-20 fixed w-full bg-gray-50 shadow-lg flex items-center justify-center`)}

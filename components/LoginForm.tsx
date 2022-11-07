@@ -12,6 +12,7 @@ import * as Toast from '@radix-ui/react-toast'
 import { AxiosError } from 'axios'
 import { useRouter } from 'next/router'
 import { setCookie } from 'nookies'
+import Link from 'next/link'
 
 type ResponseUserAuth = {
   data: {
@@ -166,6 +167,22 @@ export function LoginForm() {
         >
           {isLoading ? 'Aguarde...' : 'Login'}
         </Button>
+        <Button
+          className={clsx(
+            'w-full flex justify-center text-gray-900 bg-transparent border border-gray-900'
+          )}
+          disabled={isLoading}
+          asChild
+        >
+          <Link href="/">Voltar</Link>
+        </Button>
+
+        <Text size="md" className={clsx('text-gray-900')}>
+          Ainda não possui uma conta?{' '}
+          <Link className="underline" href="/signup">
+            Cadastre-se aqui{' '}
+          </Link>
+        </Text>
       </form>
     </div>
   )

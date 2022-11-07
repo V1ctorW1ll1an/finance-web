@@ -12,6 +12,7 @@ import * as Toast from '@radix-ui/react-toast'
 import { AxiosError } from 'axios'
 import Router from 'next/router'
 import { ResponseType } from '../common/types/ResponseType'
+import Link from 'next/link'
 
 type FormData = {
   name: string
@@ -187,6 +188,21 @@ export function SignupForm() {
         >
           {isLoading ? 'Aguarde...' : 'Cadastrar'}
         </Button>
+        <Button
+          className={clsx(
+            'w-full flex justify-center text-gray-900 bg-transparent border border-gray-900'
+          )}
+          disabled={isLoading}
+          asChild
+        >
+          <Link href="/">Voltar</Link>
+        </Button>
+        <Text size="md" className={clsx('text-gray-900')}>
+          Já possui uma conta?{' '}
+          <Link href="/login" className="underline">
+            Faça login
+          </Link>
+        </Text>
       </form>
     </div>
   )
