@@ -13,19 +13,13 @@ import { AxiosError } from 'axios'
 import { useRouter } from 'next/router'
 import { setCookie } from 'nookies'
 import Link from 'next/link'
+import { User } from '../common/types/User'
 
 type ResponseUserAuth = {
   data: {
     message: string
     user: User
   }
-}
-
-type User = {
-  id: string
-  name: string
-  email: string
-  token: string
 }
 
 type FormData = {

@@ -1,6 +1,7 @@
 import { GetServerSideProps } from 'next'
 import Head from 'next/head'
 import { parseCookies } from 'nookies'
+import { DashboardHeader } from '../../components/DashboardHeader'
 
 export default function Dashboard() {
   return (
@@ -11,7 +12,9 @@ export default function Dashboard() {
 
         <title>Finance dashboard</title>
       </Head>
-      <main className="flex flex-col h-screen w-screen bg-gray-50"></main>
+      <main className="flex flex-col h-screen w-screen bg-gray-50">
+        <DashboardHeader />
+      </main>
     </>
   )
 }
