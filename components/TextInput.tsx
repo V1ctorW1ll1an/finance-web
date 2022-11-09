@@ -1,8 +1,8 @@
 import { Slot } from '@radix-ui/react-slot'
 import clsx from 'clsx'
 import { InputHTMLAttributes, ReactNode } from 'react'
-import { UseFormRegister } from 'react-hook-form'
 import { HTMLAttributes } from 'react'
+import { UseFormRegister } from 'react-hook-form'
 
 export interface TextInputProps extends InputHTMLAttributes<HTMLInputElement> {
   register?: UseFormRegister<any>

@@ -1,26 +1,17 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import * as Toast from '@radix-ui/react-toast'
+import { AxiosError } from 'axios'
 import clsx from 'clsx'
+import Link from 'next/link'
 import { Envelope, Lock, WarningCircle, X } from 'phosphor-react'
+import { useContext } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
+import * as z from 'zod'
+
+import { AuthContext } from '../contexts/AuthContext'
 import { Button } from './Button'
 import { Text } from './Text'
 import { TextInput } from './TextInput'
-import * as z from 'zod'
-import { useAxios } from '../hooks/useAxios'
-import { useMutation } from '@tanstack/react-query'
-import * as Toast from '@radix-ui/react-toast'
-import { AxiosError } from 'axios'
-import { useRouter } from 'next/router'
-import { setCookie } from 'nookies'
-import Link from 'next/link'
-import { User } from '../common/types/User'
-
-type ResponseUserAuth = {
-  data: {
-    message: string
-    user: User
-  }
-}
 
 type FormData = {
   email: string
@@ -33,8 +24,10 @@ const validateSchema = z.object({
 })
 
 export function LoginForm() {
-  const { api } = useAxios()
-  const router = useRouter()
+  const { message, mutate, signIn } = useContext(AuthContext)
+
+  const { isError, error, isLoading } = mutate
+
   const {
     register,
     handleSubmit,
@@ -44,31 +37,13 @@ export function LoginForm() {
     resolver: zodResolver(validateSchema),
   })
 
-  const authUser = async (userToAuth: FormData) =>
-    await api.post<ResponseUserAuth>('/auth', userToAuth)
   const onSubmit: SubmitHandler<FormData> = async (formData) => {
     try {
-      return await mutateAsync(formData)
+      await signIn(formData)
     } catch (error) {
       console.log(error)
     }
   }
-
-  const { data, error, isLoading, mutateAsync, isError } = useMutation({
-    mutationFn: authUser,
-    onSuccess: (resp) => {
-      setCookie(null, 'token', resp.data.data.user.token ?? '', {
-        maxAge: 30 * 24 * 60 * 60, // 30 days
-        path: '/',
-      })
-      setCookie(null, 'user', JSON.stringify(resp.data.data.user), {
-        maxAge: 30 * 24 * 60 * 60, // 30 days
-        path: '/',
-      })
-
-      router.push('/dashboard')
-    },
-  })
 
   return (
     <div className="flex flex-col gap-8 w-full pl-5">
@@ -82,9 +57,7 @@ export function LoginForm() {
             <Toast.Title>
               <WarningCircle size={24} weight="fill" />
             </Toast.Title>
-            <Toast.Description className="px-3">
-              {error.response?.data?.data?.message}
-            </Toast.Description>
+            <Toast.Description className="px-3">{message}</Toast.Description>
             <Toast.Action altText="Close toast" />
             <Toast.Close>
               <X />

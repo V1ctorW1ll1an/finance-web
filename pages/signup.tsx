@@ -26,9 +26,9 @@ export default function Signup() {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const cookies = parseCookies(context)
+  const { 'finance.token': token } = parseCookies(context)
 
-  if (cookies.token) {
+  if (token) {
     return {
       redirect: {
         destination: '/dashboard',

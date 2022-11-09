@@ -1,6 +1,9 @@
 import clsx from 'clsx'
+import { GetServerSideProps } from 'next'
 import Head from 'next/head'
 import Link from 'next/link'
+import { parseCookies } from 'nookies'
+
 import { Button } from '../components/Button'
 import { HomeHeader } from '../components/HomeHeader'
 import { MoneyBackground } from '../components/MoneyBackground'
@@ -35,4 +38,21 @@ export default function Home() {
       </div>
     </div>
   )
+}
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { 'finance.token': token } = parseCookies(context)
+
+  if (token) {
+    return {
+      redirect: {
+        destination: '/dashboard',
+        permanent: false,
+      },
+    }
+  }
+
+  return {
+    props: {},
+  }
 }

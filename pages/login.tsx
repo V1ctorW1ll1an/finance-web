@@ -1,8 +1,8 @@
 import { GetServerSideProps } from 'next'
+import Head from 'next/head'
 import { parseCookies } from 'nookies'
 import { DigitalCurrencyImage } from '../components/DigitalCurrencyImage'
 import { LoginForm } from '../components/LoginForm'
-import Head from 'next/head'
 
 export default function Login() {
   return (
@@ -26,9 +26,9 @@ export default function Login() {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const cookies = parseCookies(context)
+  const { 'finance.token': token } = parseCookies(context)
 
-  if (cookies.token) {
+  if (token) {
     return {
       redirect: {
         destination: '/dashboard',

@@ -1,5 +1,6 @@
 import clsx from 'clsx'
 import { HTMLAttributes } from 'react'
+
 import cubeStyle from '../styles/cube.module.css'
 
 interface CubeProps extends HTMLAttributes<HTMLDivElement> {}

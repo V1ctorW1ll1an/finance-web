@@ -1,27 +1,25 @@
 import clsx from 'clsx'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { destroyCookie, parseCookies } from 'nookies'
+import { destroyCookie } from 'nookies'
 import { CaretCircleDown, CaretCircleUp, SignOut, UserCircle } from 'phosphor-react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { User } from '../common/types/User'
+
 import { Logo } from './Logo'
 
-export function DashboardHeader() {
+type DashboardHeaderProps = {
+  userProfile: Omit<User, 'token'> | null
+}
+
+export function DashboardHeader({ userProfile }: DashboardHeaderProps) {
   const [isOpen, setIsOpen] = useState(false)
-  const [userProfile, setUserProfile] = useState<User>()
 
   const router = useRouter()
 
-  useEffect(() => {
-    const { user } = parseCookies()
-    const userParser = JSON.parse(user) as User
-    setUserProfile(userParser)
-  }, [])
-
   const logout = () => {
-    destroyCookie(null, 'token')
-    destroyCookie(null, 'user')
+    destroyCookie(null, 'finance.token')
+    destroyCookie(null, 'finance.userprofile')
     router.push('/login')
   }
 

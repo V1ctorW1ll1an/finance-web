@@ -1,9 +1,16 @@
 import { GetServerSideProps } from 'next'
 import Head from 'next/head'
 import { parseCookies } from 'nookies'
+import { useContext } from 'react'
+
 import { DashboardHeader } from '../../components/DashboardHeader'
+import DashboardMainContent from '../../components/DashboardMainContent'
+
+import { AuthContext } from '../../contexts/AuthContext'
 
 export default function Dashboard() {
+  const { userProfile } = useContext(AuthContext)
+
   return (
     <>
       <Head>
@@ -13,16 +20,17 @@ export default function Dashboard() {
         <title>Finance dashboard</title>
       </Head>
       <main className="flex flex-col h-screen w-screen bg-gray-50">
-        <DashboardHeader />
+        <DashboardHeader userProfile={userProfile} />
+        <DashboardMainContent className="mt-20  w-full flex flex-col items-center" />
       </main>
     </>
   )
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const cookies = parseCookies(context)
+  const { 'finance.token': token } = parseCookies(context)
 
-  if (!cookies.token) {
+  if (!token) {
     return {
       redirect: {
         destination: '/login',

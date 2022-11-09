@@ -31,6 +31,7 @@
     "zod": "^3.19.1"
   },
   "devDependencies": {
+    "@types/cookie": "^0.5.1",
     "autoprefixer": "^10.4.13",
     "eslint": "8.26.0",
     "eslint-config-next": "13.0.1",
